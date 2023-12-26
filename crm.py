@@ -29,7 +29,7 @@ class User:
 
     @property
     def db_instance(self):
-        User.DB.get((where('first_name') == self.first_name) & (where('last_name') == self.last_name))
+        return User.DB.get((where('first_name') == self.first_name) & (where('last_name') == self.last_name))
 
 
     def _check(self):
@@ -39,7 +39,7 @@ class User:
 
     def _check_phone_number(self):
         phone_number = re.sub(r"[+()\s]*", "", self.phone_number)
-        if len(phone_number) < 10 or phone_number.isdigit():
+        if len(phone_number) < 10 or not phone_number.isdigit():
             raise ValueError(f"Numéro de téléphone invalide {self.phone_number}")
 
 
@@ -58,16 +58,20 @@ class User:
         return bool(self.db_instance)
 
 
-    def delete(self):
+    def delete(self) -> list[int]:
         if self.exists():
-            User.DB.remove
+            return User.DB.remove(doc_ids=[self.db_instance.doc_id])
+        return []
 
 
     def save(self, validates_data=False):
         if validates_data:
             self._check()
 
-        return User.DB.insert(self.__dict__)
+        if self.exists():
+            return -1
+        else:
+            return User.DB.insert(self.__dict__)
 
 
 def get_all_users():
@@ -78,14 +82,11 @@ def get_all_users():
 
 def add_to_list():
     liste = [1, 2]
-    good_liste = liste.append[3]
+    good_liste = liste.append(3)
     print(good_liste)
 
 if __name__ == "__main__":
     # get_all_users()
-    corinne = User("Pierre", "Perrot")
-    print(corinne.db_instance)
-    print(corinne.exists())
-    print(type(type))
-    print(False - 1)
-    print(add_to_list())
+    pierre = User("Pierre", "Perrot", "0123456789", "1 rue de paris 75009")
+    print(pierre)
+    print(pierre.exists())
